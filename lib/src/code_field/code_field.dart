@@ -330,7 +330,9 @@ class _CodeFieldState extends State<CodeField> {
       _editorOffset = box?.localToGlobal(Offset.zero);
       if (_editorOffset != null) {
         var fixedOffset = _editorOffset!;
-        fixedOffset += Offset(0, _codeScroll!.offset);
+        if (_codeScroll!.hasClients) {
+          fixedOffset += Offset(0, _codeScroll!.offset);
+        }
         _editorOffset = fixedOffset;
       }
     }
@@ -518,22 +520,34 @@ class _CodeFieldState extends State<CodeField> {
   }
 
   double _getPopupLeftOffset(TextPainter textPainter) {
+    final double offset;
+    if (_horizontalCodeScroll!.hasClients) {
+      offset = _horizontalCodeScroll!.offset;
+    } else {
+      offset = 0;
+    }
     return max(
       _getCaretOffset(textPainter).dx +
           widget.padding.left -
-          _horizontalCodeScroll!.offset +
+          offset +
           (_editorOffset?.dx ?? 0),
       0,
     );
   }
 
   double _getPopupTopOffset(TextPainter textPainter, double caretHeight) {
+    final double offset;
+    if (_horizontalCodeScroll!.hasClients) {
+      offset = _horizontalCodeScroll!.offset;
+    } else {
+      offset = 0;
+    }
     return max(
       _getCaretOffset(textPainter).dy +
           caretHeight +
           16 +
           widget.padding.top -
-          _codeScroll!.offset +
+          offset +
           (_editorOffset?.dy ?? 0),
       0,
     );
