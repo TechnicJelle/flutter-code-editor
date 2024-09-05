@@ -126,6 +126,9 @@ class CodeField extends StatefulWidget {
   /// or make the field scrollable horizontally.
   final bool wrap;
 
+  /// Whether to show horizontal scrollbar.
+  final bool enableHorizontalScrollBar;
+
   /// A CodeController instance to apply
   /// language highlight, themeing and modifiers.
   final CodeController controller;
@@ -172,6 +175,7 @@ class CodeField extends StatefulWidget {
     this.maxLines,
     this.expands = false,
     this.wrap = false,
+    this.enableHorizontalScrollBar = false,
     this.background,
     this.decoration,
     this.textStyle,
@@ -188,6 +192,10 @@ class CodeField extends StatefulWidget {
     @Deprecated('Use gutterStyle instead')
     this.lineNumberStyle = const GutterStyle(),
   })  : assert(
+          !(enableHorizontalScrollBar && wrap),
+          'Can not wrap and show horizontal scrollbar at the same time',
+        ),
+        assert(
             gutterStyle == null || lineNumbers == null,
             'Can not provide gutterStyle and lineNumbers at the same time. '
             'Please use gutterStyle and provide necessary columns to show/hide'),
@@ -366,7 +374,7 @@ class _CodeFieldState extends State<CodeField> {
       ),
     );
 
-    return SingleChildScrollView(
+    final scrollView = SingleChildScrollView(
       padding: EdgeInsets.only(
         right: widget.padding.right,
       ),
@@ -374,6 +382,15 @@ class _CodeFieldState extends State<CodeField> {
       controller: _horizontalCodeScroll,
       child: intrinsic,
     );
+
+    if (widget.enableHorizontalScrollBar) {
+      return Scrollbar(
+        controller: _horizontalCodeScroll,
+        child: scrollView,
+      );
+    } else {
+      return scrollView;
+    }
   }
 
   @override
